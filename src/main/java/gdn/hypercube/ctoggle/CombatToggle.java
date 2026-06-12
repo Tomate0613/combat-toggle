@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import gdn.hypercube.ctoggle.compat.area_lib.AreaLibCompat;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -17,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,6 +30,8 @@ public class CombatToggle implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+        AreaLibCompat.register();
+
 		try {
 			for (String line : Files.readAllLines(Path.of("ct_toggled.dat"))) {
 				TOGGLED_PLAYERS.add(UUID.fromString(line));
@@ -159,5 +163,9 @@ public class CombatToggle implements ModInitializer {
 				return 0;
 			}));
 		});
+	}
+
+	public static Identifier id(String path) {
+		return Identifier.of("ctoggle", path);
 	}
 }

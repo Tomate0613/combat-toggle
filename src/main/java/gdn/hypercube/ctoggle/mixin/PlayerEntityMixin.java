@@ -1,11 +1,11 @@
 package gdn.hypercube.ctoggle.mixin;
 
 import gdn.hypercube.ctoggle.CombatToggle;
+import gdn.hypercube.ctoggle.compat.area_lib.AreaLibCompat;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,7 +19,7 @@ public class PlayerEntityMixin {
     public void toggle(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (source.getAttacker() instanceof PlayerEntity) {
             PlayerEntity current = ((PlayerEntity) (Object) this);
-            if (CombatToggle.TOGGLED_PLAYERS.contains(current.getUuid()) && current != source.getAttacker()) {
+            if ((CombatToggle.TOGGLED_PLAYERS.contains(current.getUuid()) && current != source.getAttacker()) && !AreaLibCompat.isForceDisabled(current)) {
                 cir.setReturnValue(false);
             }
         }
@@ -28,7 +28,11 @@ public class PlayerEntityMixin {
     @Inject(method = "shouldDamagePlayer", at = @At("HEAD"), cancellable = true)
     public void toggle(PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
         PlayerEntity current = ((PlayerEntity) (Object) this);
-        if (CombatToggle.TOGGLED_PLAYERS.contains(current.getUuid()) || CombatToggle.TOGGLED_PLAYERS.contains(player.getUuid())) {
+
+        // For some reason player and current are swapped in ServerPlayerEntity#damage, so we check both
+        var areaOverridden = AreaLibCompat.isForceDisabled(current) || AreaLibCompat.isForceDisabled(player);
+
+        if ((CombatToggle.TOGGLED_PLAYERS.contains(current.getUuid()) || CombatToggle.TOGGLED_PLAYERS.contains(player.getUuid())) && !areaOverridden) {
             cir.setReturnValue(false);
         }
     }
@@ -37,7 +41,7 @@ public class PlayerEntityMixin {
     public void disallow(LivingEntity target, CallbackInfo ci) {
         if (target instanceof PlayerEntity) {
             PlayerEntity current = ((PlayerEntity) (Object) this);
-            if (CombatToggle.TOGGLED_PLAYERS.contains(current.getUuid())) {
+            if (CombatToggle.TOGGLED_PLAYERS.contains(current.getUuid()) && !AreaLibCompat.isForceDisabled(target)) {
                 ci.cancel();
             }
         }
@@ -47,7 +51,7 @@ public class PlayerEntityMixin {
     public void disallow(Entity target, CallbackInfo ci) {
         if (target instanceof PlayerEntity) {
             PlayerEntity current = ((PlayerEntity) (Object) this);
-            if (CombatToggle.TOGGLED_PLAYERS.contains(current.getUuid())) {
+            if (CombatToggle.TOGGLED_PLAYERS.contains(current.getUuid()) && !AreaLibCompat.isForceDisabled(target)) {
                 ci.cancel();
             }
         }

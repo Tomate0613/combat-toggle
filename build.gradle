@@ -9,6 +9,18 @@ repositories {
     maven {
         url = "https://repo.codemc.io/repository/relativitymc/"
     }
+
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 fabricApi {
@@ -22,6 +34,7 @@ dependencies {
     mappings "org.relativitymc:modern-yarn:26.1.2+build.1:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    modImplementation "maven.modrinth:area_lib:${project.area_lib_version}"
 }
 
 processResources {
