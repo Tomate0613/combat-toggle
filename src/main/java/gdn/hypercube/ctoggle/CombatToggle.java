@@ -18,7 +18,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -163,9 +162,5 @@ public class CombatToggle implements ModInitializer {
 				return 0;
 			}));
 		});
-	}
-
-	public static Identifier id(String path) {
-		return Identifier.of("ctoggle", path);
 	}
 }
